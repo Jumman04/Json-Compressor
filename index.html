@@ -2,7 +2,8 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Json Compressor</title>
+  <title>JSON Compressor</title>
+
   <style>
     html, body {
       margin: 0;
@@ -11,93 +12,143 @@
       overflow: hidden;
       font-family: sans-serif;
     }
+
     body {
       display: flex;
       flex-direction: column;
     }
+
     h1 {
       margin: 0;
-      padding: 10px;
+      padding: 12px;
       text-align: center;
-      background-color: #f0f0f0;
-      flex: 0 0 auto;
+      background: #f0f0f0;
+      font-size: 20px;
     }
+
     form {
-      flex: 1 1 auto;
+      flex: 1;
       display: flex;
       flex-direction: column;
-      height: 100%;
     }
+
     textarea {
       flex: 1;
-      font-family: monospace;
-      font-size: 16px;
-      padding: 10px;
       border: none;
       resize: none;
+      outline: none;
+      padding: 12px;
+      font-size: 15px;
+      font-family: monospace;
     }
+
     button {
-      flex: 0 0 40px;
-      font-size: 16px;
+      height: 50px;
       border: none;
       cursor: pointer;
+      font-size: 16px;
     }
+
     #copiedMessage {
-      position: absolute;
-      bottom: 60px;
+      position: fixed;
+      bottom: 70px;
       left: 50%;
       transform: translateX(-50%);
       background: #4CAF50;
       color: white;
       padding: 8px 16px;
       border-radius: 8px;
-      font-size: 14px;
       opacity: 0;
+      transition: opacity 0.3s;
       pointer-events: none;
-      transition: opacity 0.3s ease;
     }
+
     #copiedMessage.show {
       opacity: 1;
     }
   </style>
 </head>
+
 <body>
-  <h1>Json Compressor</h1>
-  <form onsubmit="trimText(event)">
-    <textarea id="inputText" placeholder="Paste your text here..."></textarea>
-    <button type="submit">Compress</button>
+
+  <h1>JSON Compressor</h1>
+
+  <form onsubmit="compressJson(event)">
+    <textarea
+      id="inputText"
+      placeholder="Paste JSON here..."
+    ></textarea>
+
+    <button type="submit">
+      Compress
+    </button>
   </form>
-  <div id="copiedMessage">✅ Copied!</div>
+
+  <div id="copiedMessage">
+    ✅ Copied!
+  </div>
 
   <script>
-    function trimText(event) {
+
+    function compressJson(event) {
+
       event.preventDefault();
-      let textarea = document.getElementById("inputText");
-let json = JSON.stringify(JSON.parse(textarea.value));
 
-      const phpStyle = json.replace(
-    /[\u007F-\uFFFF]/g,
-    c => '\\u' + ('0000' + c.charCodeAt(0).toString(16)).slice(-4)
-);
-      
-      // Update textarea
-      textarea.value = phpStyle;
+      const textarea =
+        document.getElementById("inputText");
 
-      // Copy to clipboard
-      navigator.clipboard.writeText(phpStyle).then(() => {
+      try {
+
+        // Parse JSON
+        const parsed =
+          JSON.parse(textarea.value);
+
+        // Minify JSON
+        let compressed =
+          JSON.stringify(parsed);
+
+        // PHP-style unicode escaping
+        compressed = compressed.replace(
+          /[\u007F-\uFFFF]/g,
+          char =>
+            '\\u' +
+            ('0000' + char.charCodeAt(0).toString(16))
+            .slice(-4)
+        );
+
+        // Remove escaped slashes
+        compressed =
+          compressed.replaceAll("\\/", "/");
+
+        // Update textarea
+        textarea.value = compressed;
+
+        // Copy
+        navigator.clipboard.writeText(compressed);
+
+        // Show message
         showCopiedMessage();
-      }).catch(err => {
-        console.error("Clipboard error:", err);
-      });
+
+      } catch (e) {
+
+        alert("Invalid JSON");
+
+      }
     }
 
     function showCopiedMessage() {
-      const msg = document.getElementById("copiedMessage");
+
+      const msg =
+        document.getElementById("copiedMessage");
+
       msg.classList.add("show");
+
       setTimeout(() => {
         msg.classList.remove("show");
       }, 1500);
     }
+
   </script>
+
 </body>
 </html>
