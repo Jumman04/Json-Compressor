@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Json Compressor</title>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      overflow: hidden;
+      font-family: sans-serif;
+    }
+    body {
+      display: flex;
+      flex-direction: column;
+    }
+    h1 {
+      margin: 0;
+      padding: 10px;
+      text-align: center;
+      background-color: #f0f0f0;
+      flex: 0 0 auto;
+    }
+    form {
+      flex: 1 1 auto;
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+    }
+    textarea {
+      flex: 1;
+      font-family: monospace;
+      font-size: 16px;
+      padding: 10px;
+      border: none;
+      resize: none;
+    }
+    button {
+      flex: 0 0 40px;
+      font-size: 16px;
+      border: none;
+      cursor: pointer;
+    }
+    #copiedMessage {
+      position: absolute;
+      bottom: 60px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #4CAF50;
+      color: white;
+      padding: 8px 16px;
+      border-radius: 8px;
+      font-size: 14px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s ease;
+    }
+    #copiedMessage.show {
+      opacity: 1;
+    }
+  </style>
+</head>
+<body>
+  <h1>Json Compressor</h1>
+  <form onsubmit="trimText(event)">
+    <textarea id="inputText" placeholder="Paste your text here..."></textarea>
+    <button type="submit">Trim</button>
+  </form>
+  <div id="copiedMessage">✅ Copied!</div>
+
+  <script>
+    function trimText(event) {
+      event.preventDefault();
+      let textarea = document.getElementById("inputText");
+let text = textarea.value;
+
+// "\10" কে newline বানাও
+text = text.replace(/\\10/g, "\n");
+
+// HTML entities decode (যেমন &apos; → ', &quot; → " ইত্যাদি)
+let textareaHelper = document.createElement("textarea");
+textareaHelper.innerHTML = text;
+jsonString = textareaHelper.value;
+      
+      // Update textarea
+      textarea.value = JSON.stringify(JSON.parse(jsonString));;
+
+      // Copy to clipboard
+      navigator.clipboard.writeText(text).then(() => {
+        showCopiedMessage();
+      }).catch(err => {
+        console.error("Clipboard error:", err);
+      });
+    }
+
+    function showCopiedMessage() {
+      const msg = document.getElementById("copiedMessage");
+      msg.classList.add("show");
+      setTimeout(() => {
+        msg.classList.remove("show");
+      }, 1500);
+    }
+  </script>
+</body>
+</html>
