@@ -65,7 +65,7 @@
   <h1>Json Compressor</h1>
   <form onsubmit="trimText(event)">
     <textarea id="inputText" placeholder="Paste your text here..."></textarea>
-    <button type="submit">Trim</button>
+    <button type="submit">Compress</button>
   </form>
   <div id="copiedMessage">✅ Copied!</div>
 
@@ -73,21 +73,18 @@
     function trimText(event) {
       event.preventDefault();
       let textarea = document.getElementById("inputText");
-let text = textarea.value;
+let json = JSON.stringify(JSON.parse(textarea.value));
 
-// "\10" কে newline বানাও
-text = text.replace(/\\10/g, "\n");
-
-// HTML entities decode (যেমন &apos; → ', &quot; → " ইত্যাদি)
-let textareaHelper = document.createElement("textarea");
-textareaHelper.innerHTML = text;
-jsonString = textareaHelper.value;
+      const phpStyle = json.replace(
+    /[\u007F-\uFFFF]/g,
+    c => '\\u' + ('0000' + c.charCodeAt(0).toString(16)).slice(-4)
+);
       
       // Update textarea
-      textarea.value = JSON.stringify(JSON.parse(jsonString));;
+      textarea.value = phpStyle;
 
       // Copy to clipboard
-      navigator.clipboard.writeText(text).then(() => {
+      navigator.clipboard.writeText(phpStyle).then(() => {
         showCopiedMessage();
       }).catch(err => {
         console.error("Clipboard error:", err);
